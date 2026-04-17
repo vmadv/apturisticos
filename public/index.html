@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apartamentos Turísticos · Sevilla</title>
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Leaflet MarkerCluster -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <div class="header-icon">🏠</div>
+      <div>
+        <h1>Apartamentos Turísticos</h1>
+        <span class="header-subtitle">Sevilla · Registro Oficial RTA</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="sync-info">
+        <span id="last-sync-text">Cargando...</span>
+        <button id="btn-sync" onclick="triggerSync()" title="Sincronizar ahora">
+          <span id="sync-icon">↻</span> Sincronizar
+        </button>
+      </div>
+      <button class="btn-export" onclick="exportExcel()">⬇ Exportar Excel</button>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="dashboard" onclick="switchTab('dashboard')">📊 Panel</button>
+    <button class="tab" data-tab="map" onclick="switchTab('map')">🗺 Mapa</button>
+    <button class="tab" data-tab="evolution" onclick="switchTab('evolution')">📈 Evolución</button>
+    <button class="tab" data-tab="alerts" onclick="switchTab('alerts')">🔔 Novedades</button>
+  </nav>
+
+  <!-- DASHBOARD -->
+  <section id="tab-dashboard" class="tab-content active">
+    <div class="stats-grid">
+      <div class="stat-card accent-blue">
+        <div class="stat-icon">🏠</div>
+        <div class="stat-value" id="stat-total">—</div>
+        <div class="stat-label">Apartamentos registrados</div>
+      </div>
+      <div class="stat-card accent-green">
+        <div class="stat-icon">🛏</div>
+        <div class="stat-value" id="stat-places">—</div>
+        <div class="stat-label">Plazas totales</div>
+      </div>
+      <div class="stat-card accent-purple">
+        <div class="stat-icon">🏢</div>
+        <div class="stat-value" id="stat-units">—</div>
+        <div class="stat-label">Unidades de alojamiento</div>
+      </div>
+      <div class="stat-card accent-orange">
+        <div class="stat-icon">🆕</div>
+        <div class="stat-value" id="stat-new">—</div>
+        <div class="stat-label">Nuevos últimos 30 días</div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="card">
+        <h2>📈 Evolución anual de licencias</h2>
+        <div class="chart-wrap">
+          <canvas id="dashboard-chart"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h2>🔔 Últimas altas <span class="badge" id="new-count-badge">0</span></h2>
+        <div class="filter-row">
+          <label>Mostrar últimos:
+            <select id="new-days-filter" onchange="loadNewAlerts()">
+              <option value="30">30 días</option>
+              <option value="60">60 días</option>
+              <option value="90">90 días</option>
+              <option value="180">6 meses</option>
+              <option value="365">1 año</option>
+            </select>
+          </label>
+        </div>
+        <div id="alerts-list" class="alerts-list">
+          <div class="loading">Cargando...</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAPA -->
+  <section id="tab-map" class="tab-content">
+    <div class="map-toolbar">
+      <div class="map-legend">
+        <span class="legend-dot dot-normal"></span> Activo
+        <span class="legend-dot dot-new"></span> Alta reciente (≤ 365 días)
+      </div>
+      <div class="map-info" id="map-info">Cargando apartamentos...</div>
+    </div>
+    <div id="map"></div>
+  </section>
+
+  <!-- EVOLUCIÓN -->
+  <section id="tab-evolution" class="tab-content">
+    <div class="evolution-controls">
+      <div class="btn-group">
+        <button class="btn-mode active" id="btn-anual" onclick="setChartMode('anual')">Anual</button>
+        <button class="btn-mode" id="btn-acumulado" onclick="setChartMode('acumulado')">Acumulado</button>
+      </div>
+      <div class="btn-group">
+        <button class="btn-mode active" id="btn-licencias" onclick="setMetric('licencias')">Licencias</button>
+        <button class="btn-mode" id="btn-plazas" onclick="setMetric('plazas')">Plazas</button>
+      </div>
+    </div>
+    <div class="card evolution-card">
+      <h2 id="evolution-title">Nuevas licencias por año</h2>
+      <div class="chart-wrap-lg">
+        <canvas id="evolution-chart"></canvas>
+      </div>
+    </div>
+    <div class="stats-grid evolution-summary" id="evolution-summary"></div>
+  </section>
+
+  <!-- NOVEDADES -->
+  <section id="tab-alerts" class="tab-content">
+    <div class="card">
+      <div class="alerts-header">
+        <h2>🔔 Novedades y nuevas altas</h2>
+        <div class="filter-row">
+          <label>Período:
+            <select id="alert-days-filter" onchange="loadAlertsTab()">
+              <option value="30">Últimos 30 días</option>
+              <option value="60">Últimos 60 días</option>
+              <option value="90">Últimos 90 días</option>
+              <option value="180">Últimos 6 meses</option>
+              <option value="365">Último año</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div id="alerts-tab-list" class="alerts-list alerts-list-full">
+        <div class="loading">Cargando...</div>
+      </div>
+    </div>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>
