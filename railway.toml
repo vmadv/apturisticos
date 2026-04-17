@@ -1,7 +1,0 @@
-[deploy]
-startCommand = "node server.js"
-healthcheckPath = "/api/stats"
-healthcheckTimeout = 30
-
-[build]
-builder = "nixpacks"

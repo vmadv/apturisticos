@@ -1,5 +1,4 @@
 const express = require('express');
-const cron = require('node-cron');
 const path = require('path');
 const ExcelJS = require('exceljs');
 const db = require('./db');
@@ -7,14 +6,9 @@ const { sync } = require('./sync');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const CRON_SECRET = process.env.CRON_SECRET || null;
 
 db.init();
-
-// Sincronización diaria a las 7:00
-cron.schedule('0 7 * * *', () => {
-  console.log('Ejecutando sincronización diaria programada...');
-  sync();
-}, { timezone: 'Europe/Madrid' });
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -61,6 +55,14 @@ app.get('/api/evolution', (req, res) => {
 });
 
 app.get('/api/sync', async (req, res) => {
+  const result = await sync();
+  res.json(result);
+});
+
+app.get('/api/sync-cron', async (req, res) => {
+  if (CRON_SECRET && req.query.secret !== CRON_SECRET) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
   const result = await sync();
   res.json(result);
 });
