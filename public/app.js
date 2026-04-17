@@ -137,10 +137,10 @@ function renderAlertItem(apt) {
         <div class="alert-meta">
           ${esc(apt.registration_code)} · ${esc(apt.establishment_address || '—')}
           ${apt.holder ? `· <em>${esc(apt.holder)}</em>` : ''}
-          · Alta: ${dateStr}
           ${apt.categories ? `· ${esc(apt.categories)}` : ''}
         </div>
       </div>
+      <div class="alert-date">Alta: ${dateStr}</div>
       <div class="alert-places ${placesClass}">${places} plazas</div>
     </div>`;
 }

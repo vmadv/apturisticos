@@ -25,20 +25,8 @@ app.get('/api/apartments', (req, res) => {
 
 app.get('/api/new', (req, res) => {
   const days = parseInt(req.query.days) || 30;
-  const byFirstSeen = db.getNewSince(days);
-  const byActivity = db.getRecentRegistrations(days);
-
-  // Merge y deduplicar por registration_code
-  const seen = new Set();
-  const merged = [];
-  for (const apt of [...byActivity, ...byFirstSeen]) {
-    if (!seen.has(apt.registration_code)) {
-      seen.add(apt.registration_code);
-      merged.push(apt);
-    }
-  }
-  merged.sort((a, b) => (b.activity_start_date || '').localeCompare(a.activity_start_date || ''));
-  res.json(merged);
+  const results = db.getRecentRegistrations(days);
+  res.json(results);
 });
 
 app.get('/api/evolution', (req, res) => {

@@ -197,6 +197,10 @@ header h1 { font-size: 1.35rem; font-weight: 700; line-height: 1.2; }
 .alert-body { flex: 1; min-width: 0; }
 .alert-name { font-weight: 600; font-size: 0.9rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .alert-meta { font-size: 0.78rem; color: var(--text-muted); margin-top: 3px; }
+.alert-date {
+  font-size: 0.78rem; font-weight: 600; color: #2563eb;
+  white-space: nowrap; flex-shrink: 0;
+}
 .alert-places {
   background: #dbeafe; color: #1e40af;
   font-size: 0.75rem; font-weight: 700;
