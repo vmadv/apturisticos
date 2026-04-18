@@ -106,8 +106,11 @@ function setGlobalDateField(field) {
   dateField = field;
   document.getElementById('global-btn-activity').classList.toggle('active', field === 'activity');
   document.getElementById('global-btn-registration').classList.toggle('active', field === 'registration');
-  Promise.all([loadStats(), loadDashboardChart(), loadNewAlerts()]);
-  if (evolutionData.length > 0) loadEvolutionChart();
+  loadStats();
+  loadDashboardChart();
+  loadNewAlerts();
+  loadEvolutionChart();
+  if (clusterLayer) { map.removeLayer(clusterLayer); clusterLayer = null; loadMap(); }
   if (document.getElementById('tab-alerts').classList.contains('active')) loadAlertsTab();
 }
 
@@ -180,7 +183,8 @@ async function loadMap() {
   const cutoffDate = cutoff.toISOString().split('T')[0].replace(/-/g, '');
 
   for (const apt of data) {
-    const isNew = apt.activity_start_date && apt.activity_start_date >= cutoffDate;
+    const dateVal = dateField === 'registration' ? apt.registration_date : apt.activity_start_date;
+    const isNew = dateVal && dateVal >= cutoffDate;
     const marker = L.circleMarker([apt.lat, apt.lon], {
       radius: isNew ? 9 : 7,
       fillColor: isNew ? '#dc2626' : '#2563eb',
