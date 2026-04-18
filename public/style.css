@@ -99,49 +99,33 @@ header h1 { font-size: 1.35rem; font-weight: 700; line-height: 1.2; }
   white-space: nowrap;
 }
 .global-date-btn {
-  padding: 6px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 8px 16px;
   border: 2px solid #93b4ef;
-  border-radius: 20px;
+  border-radius: 10px;
   background: var(--card-bg);
   color: #2563eb;
-  font-size: 0.82rem;
-  font-weight: 500;
   cursor: pointer;
   transition: all 0.15s;
+  text-align: left;
 }
 .global-date-btn:hover { background: #dbeafe; }
 .global-date-btn.active {
   background: #2563eb;
   border-color: #2563eb;
   color: #fff;
-  font-weight: 700;
 }
-
-.info-tip {
-  position: relative;
-  font-size: 0.8rem;
-  color: #6b7280;
-  cursor: default;
-  margin-right: 8px;
+.global-date-btn-main {
+  font-size: 0.85rem;
+  font-weight: 600;
 }
-.info-tip::after {
-  content: attr(data-tip);
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: #1e293b;
-  color: #fff;
-  font-size: 0.75rem;
-  padding: 5px 10px;
-  border-radius: 6px;
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.15s;
-  z-index: 100;
+.global-date-btn-sub {
+  font-size: 0.72rem;
+  opacity: 0.75;
+  margin-top: 1px;
 }
-.info-tip:hover::after { opacity: 1; }
 
 .tab {
   background: none;
