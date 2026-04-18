@@ -154,29 +154,31 @@ const db = {
     ).all(cutoffDate);
   },
 
-  getEvolutionByYear() {
+  getEvolutionByYear(field = 'activity') {
+    const col = field === 'registration' ? 'registration_date' : 'activity_start_date';
     return getDb().prepare(`
-      SELECT substr(activity_start_date, 1, 4) AS year,
+      SELECT substr(${col}, 1, 4) AS year,
              COUNT(*) AS count,
              SUM(tot_gen_places) AS places
       FROM apartments
-      WHERE activity_start_date IS NOT NULL AND length(activity_start_date) >= 4
+      WHERE ${col} IS NOT NULL AND length(${col}) >= 4
       GROUP BY year
       ORDER BY year
     `).all();
   },
 
-  getStats() {
+  getStats(field = 'activity') {
     const d = getDb();
     const { total, totalPlaces, totalUnits } = d.prepare(
       'SELECT COUNT(*) AS total, SUM(tot_gen_places) AS totalPlaces, SUM(tot_gen_ua) AS totalUnits FROM apartments'
     ).get();
 
+    const col = field === 'registration' ? 'registration_date' : 'activity_start_date';
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - 30);
     const cutoffStr = cutoffDate.toISOString().split('T')[0].replace(/-/g, '');
     const { newLast30Days } = d.prepare(
-      'SELECT COUNT(*) AS newLast30Days FROM apartments WHERE activity_start_date >= ?'
+      `SELECT COUNT(*) AS newLast30Days FROM apartments WHERE ${col} >= ?`
     ).get(cutoffStr);
 
     return { total, totalPlaces, totalUnits, newLast30Days };

@@ -46,6 +46,12 @@
     <button class="tab" data-tab="alerts" onclick="switchTab('alerts')">🔔 Novedades</button>
   </nav>
 
+  <div class="global-date-selector">
+    <span class="global-date-label">Filtrar informe por:</span>
+    <button class="global-date-btn" id="global-btn-registration" onclick="setGlobalDateField('registration')">📋 Concesión de licencia</button>
+    <button class="global-date-btn" id="global-btn-activity" onclick="setGlobalDateField('activity')">📅 Inicio de actividad</button>
+  </div>
+
   <!-- DASHBOARD -->
   <section id="tab-dashboard" class="tab-content active">
     <div class="stats-grid">
@@ -80,10 +86,6 @@
       </div>
       <div class="card">
         <h2>🔔 Últimas altas <span class="badge" id="new-count-badge">0</span></h2>
-        <div class="date-field-selector">
-          <button class="date-field-btn active" id="dash-btn-activity" onclick="setDashDateField('activity')">📅 Inicio de actividad</button>
-          <button class="date-field-btn" id="dash-btn-registration" onclick="setDashDateField('registration')">📋 Concesión de licencia</button>
-        </div>
         <div class="filter-row">
           <label>Mostrar últimos:
             <select id="new-days-filter" onchange="loadNewAlerts()">
@@ -140,10 +142,6 @@
     <div class="card">
       <div class="alerts-header">
         <h2>🔔 Novedades y nuevas altas</h2>
-        <div class="date-field-selector">
-          <button class="date-field-btn active" id="tab-btn-activity" onclick="setTabDateField('activity')">📅 Inicio de actividad</button>
-          <button class="date-field-btn" id="tab-btn-registration" onclick="setTabDateField('registration')">📋 Concesión de licencia</button>
-        </div>
         <div class="filter-row">
           <label>Período:
             <select id="alert-days-filter" onchange="loadAlertsTab()">

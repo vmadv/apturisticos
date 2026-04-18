@@ -15,7 +15,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 // --- Endpoints API ---
 
 app.get('/api/stats', (req, res) => {
-  res.json(db.getStats());
+  const field = req.query.field === 'registration' ? 'registration' : 'activity';
+  res.json(db.getStats(field));
 });
 
 app.get('/api/apartments', (req, res) => {
@@ -31,8 +32,8 @@ app.get('/api/new', (req, res) => {
 });
 
 app.get('/api/evolution', (req, res) => {
-  const byYear = db.getEvolutionByYear();
-  // Calcular acumulados
+  const field = req.query.field === 'registration' ? 'registration' : 'activity';
+  const byYear = db.getEvolutionByYear(field);
   let cumulative = 0;
   let cumulativePlaces = 0;
   const withCumulative = byYear.map(d => {

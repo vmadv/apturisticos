@@ -83,6 +83,40 @@ header h1 { font-size: 1.35rem; font-weight: 700; line-height: 1.2; }
   gap: 4px;
 }
 
+.global-date-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #f0f4ff;
+  border-bottom: 2px solid #c7d7f7;
+}
+.global-date-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-right: 4px;
+  white-space: nowrap;
+}
+.global-date-btn {
+  padding: 6px 16px;
+  border: 2px solid #93b4ef;
+  border-radius: 20px;
+  background: var(--card-bg);
+  color: #2563eb;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.global-date-btn:hover { background: #dbeafe; }
+.global-date-btn.active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+  font-weight: 700;
+}
+
 .tab {
   background: none;
   border: none;

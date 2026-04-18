@@ -5,13 +5,13 @@ let evolutionChart = null;
 let dashboardChart = null;
 let chartMode = 'anual';
 let chartMetric = 'licencias';
-let dashDateField = 'activity';
-let tabDateField = 'activity';
+let dateField = 'registration';
 const NEW_DAYS_THRESHOLD = 365;
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
   initMap();
+  document.getElementById('global-btn-registration').classList.add('active');
   await Promise.all([loadStats(), loadSyncStatus(), loadDashboardChart(), loadNewAlerts()]);
 });
 
@@ -30,7 +30,7 @@ function switchTab(name) {
 
 // ─── Stats ────────────────────────────────────────────────────────────────────
 async function loadStats() {
-  const s = await fetchJSON('/api/stats');
+  const s = await fetchJSON(`/api/stats?field=${dateField}`);
   document.getElementById('stat-total').textContent = s.total.toLocaleString('es-ES');
   document.getElementById('stat-places').textContent = s.totalPlaces.toLocaleString('es-ES');
   document.getElementById('stat-units').textContent = s.totalUnits.toLocaleString('es-ES');
@@ -70,7 +70,7 @@ async function triggerSync() {
 
 // ─── Dashboard mini-chart ─────────────────────────────────────────────────────
 async function loadDashboardChart() {
-  const data = await fetchJSON('/api/evolution');
+  const data = await fetchJSON(`/api/evolution?field=${dateField}`);
   if (!data.length) return;
 
   const recentYears = data.slice(-15);
@@ -101,48 +101,44 @@ async function loadDashboardChart() {
   });
 }
 
+// ─── Global date field selector ───────────────────────────────────────────────
+function setGlobalDateField(field) {
+  dateField = field;
+  document.getElementById('global-btn-activity').classList.toggle('active', field === 'activity');
+  document.getElementById('global-btn-registration').classList.toggle('active', field === 'registration');
+  Promise.all([loadStats(), loadDashboardChart(), loadNewAlerts()]);
+  if (evolutionData.length > 0) loadEvolutionChart();
+  if (document.getElementById('tab-alerts').classList.contains('active')) loadAlertsTab();
+}
+
 // ─── Alerts (panel + tab) ─────────────────────────────────────────────────────
-function setDashDateField(field) {
-  dashDateField = field;
-  document.getElementById('dash-btn-activity').classList.toggle('active', field === 'activity');
-  document.getElementById('dash-btn-registration').classList.toggle('active', field === 'registration');
-  loadNewAlerts();
-}
-
-function setTabDateField(field) {
-  tabDateField = field;
-  document.getElementById('tab-btn-activity').classList.toggle('active', field === 'activity');
-  document.getElementById('tab-btn-registration').classList.toggle('active', field === 'registration');
-  loadAlertsTab();
-}
-
 async function loadNewAlerts() {
   const days = parseInt(document.getElementById('new-days-filter').value) || 30;
-  const data = await fetchJSON(`/api/new?days=${days}&field=${dashDateField}`);
+  const data = await fetchJSON(`/api/new?days=${days}&field=${dateField}`);
   const list = document.getElementById('alerts-list');
   const badge = document.getElementById('new-count-badge');
   badge.textContent = data.length;
   list.innerHTML = data.length === 0
     ? '<div class="empty">Sin nuevas altas en el período seleccionado.</div>'
-    : data.map(a => renderAlertItem(a, dashDateField)).join('');
+    : data.map(renderAlertItem).join('');
 }
 
 async function loadAlertsTab() {
   const days = parseInt(document.getElementById('alert-days-filter').value) || 30;
-  const data = await fetchJSON(`/api/new?days=${days}&field=${tabDateField}`);
+  const data = await fetchJSON(`/api/new?days=${days}&field=${dateField}`);
   const list = document.getElementById('alerts-tab-list');
   list.innerHTML = data.length === 0
     ? '<div class="empty">Sin nuevas altas en el período seleccionado.</div>'
-    : data.map(a => renderAlertItem(a, tabDateField)).join('');
+    : data.map(renderAlertItem).join('');
 }
 
-function renderAlertItem(apt, field = 'activity') {
+function renderAlertItem(apt) {
   const isNew = isRecentDate(apt.activity_start_date, 90);
   const places = apt.tot_gen_places || 0;
   const placesClass = places >= 20 ? 'places-high' : '';
-  const dateField = field === 'registration' ? apt.registration_date_display : apt.activity_start_date_display;
-  const dateLabel = field === 'registration' ? 'Licencia' : 'Alta';
-  const dateStr = dateField ? formatDate(dateField) : '—';
+  const dateDisplay = dateField === 'registration' ? apt.registration_date_display : apt.activity_start_date_display;
+  const dateLabel = dateField === 'registration' ? 'Licencia' : 'Alta';
+  const dateStr = dateDisplay ? formatDate(dateDisplay) : '—';
 
   return `
     <div class="alert-item">
@@ -218,7 +214,7 @@ function buildPopup(apt, isNew) {
 
 // ─── Evolution chart ──────────────────────────────────────────────────────────
 async function loadEvolutionChart() {
-  evolutionData = await fetchJSON('/api/evolution');
+  evolutionData = await fetchJSON(`/api/evolution?field=${dateField}`);
   renderEvolutionChart();
   renderEvolutionSummary();
 }
