@@ -117,6 +117,32 @@ header h1 { font-size: 1.35rem; font-weight: 700; line-height: 1.2; }
   font-weight: 700;
 }
 
+.info-tip {
+  position: relative;
+  font-size: 0.8rem;
+  color: #6b7280;
+  cursor: default;
+  margin-right: 8px;
+}
+.info-tip::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 5px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 100;
+}
+.info-tip:hover::after { opacity: 1; }
+
 .tab {
   background: none;
   border: none;
