@@ -25,7 +25,8 @@ app.get('/api/apartments', (req, res) => {
 
 app.get('/api/new', (req, res) => {
   const days = parseInt(req.query.days) || 30;
-  const results = db.getRecentRegistrations(days);
+  const field = req.query.field === 'registration' ? 'registration' : 'activity';
+  const results = db.getRecentRegistrations(days, field);
   res.json(results);
 });
 

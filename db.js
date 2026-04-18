@@ -144,12 +144,13 @@ const db = {
     ).all(cutoffStr);
   },
 
-  getRecentRegistrations(days) {
+  getRecentRegistrations(days, field = 'activity') {
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - days);
     const cutoffDate = cutoff.toISOString().split('T')[0].replace(/-/g, '');
+    const col = field === 'registration' ? 'registration_date' : 'activity_start_date';
     return getDb().prepare(
-      'SELECT * FROM apartments WHERE activity_start_date >= ? ORDER BY activity_start_date DESC'
+      `SELECT * FROM apartments WHERE ${col} >= ? ORDER BY ${col} DESC`
     ).all(cutoffDate);
   },
 

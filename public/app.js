@@ -5,6 +5,8 @@ let evolutionChart = null;
 let dashboardChart = null;
 let chartMode = 'anual';
 let chartMetric = 'licencias';
+let dashDateField = 'activity';
+let tabDateField = 'activity';
 const NEW_DAYS_THRESHOLD = 365;
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
@@ -100,32 +102,47 @@ async function loadDashboardChart() {
 }
 
 // ─── Alerts (panel + tab) ─────────────────────────────────────────────────────
+function setDashDateField(field) {
+  dashDateField = field;
+  document.getElementById('dash-btn-activity').classList.toggle('active', field === 'activity');
+  document.getElementById('dash-btn-registration').classList.toggle('active', field === 'registration');
+  loadNewAlerts();
+}
+
+function setTabDateField(field) {
+  tabDateField = field;
+  document.getElementById('tab-btn-activity').classList.toggle('active', field === 'activity');
+  document.getElementById('tab-btn-registration').classList.toggle('active', field === 'registration');
+  loadAlertsTab();
+}
+
 async function loadNewAlerts() {
   const days = parseInt(document.getElementById('new-days-filter').value) || 30;
-  const data = await fetchJSON(`/api/new?days=${days}`);
+  const data = await fetchJSON(`/api/new?days=${days}&field=${dashDateField}`);
   const list = document.getElementById('alerts-list');
   const badge = document.getElementById('new-count-badge');
   badge.textContent = data.length;
   list.innerHTML = data.length === 0
     ? '<div class="empty">Sin nuevas altas en el período seleccionado.</div>'
-    : data.map(renderAlertItem).join('');
+    : data.map(a => renderAlertItem(a, dashDateField)).join('');
 }
 
 async function loadAlertsTab() {
   const days = parseInt(document.getElementById('alert-days-filter').value) || 30;
-  const data = await fetchJSON(`/api/new?days=${days}`);
+  const data = await fetchJSON(`/api/new?days=${days}&field=${tabDateField}`);
   const list = document.getElementById('alerts-tab-list');
   list.innerHTML = data.length === 0
     ? '<div class="empty">Sin nuevas altas en el período seleccionado.</div>'
-    : data.map(renderAlertItem).join('');
+    : data.map(a => renderAlertItem(a, tabDateField)).join('');
 }
 
-function renderAlertItem(apt) {
+function renderAlertItem(apt, field = 'activity') {
   const isNew = isRecentDate(apt.activity_start_date, 90);
   const places = apt.tot_gen_places || 0;
   const placesClass = places >= 20 ? 'places-high' : '';
-  const dateStr = apt.activity_start_date_display
-    ? formatDate(apt.activity_start_date_display) : '—';
+  const dateField = field === 'registration' ? apt.registration_date_display : apt.activity_start_date_display;
+  const dateLabel = field === 'registration' ? 'Licencia' : 'Alta';
+  const dateStr = dateField ? formatDate(dateField) : '—';
 
   return `
     <div class="alert-item">
@@ -140,7 +157,7 @@ function renderAlertItem(apt) {
           ${apt.categories ? `· ${esc(apt.categories)}` : ''}
         </div>
       </div>
-      <div class="alert-date">Alta: ${dateStr}</div>
+      <div class="alert-date">${dateLabel}: ${dateStr}</div>
       <div class="alert-places ${placesClass}">${places} plazas</div>
     </div>`;
 }

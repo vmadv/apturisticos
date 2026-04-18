@@ -216,6 +216,31 @@ header h1 { font-size: 1.35rem; font-weight: 700; line-height: 1.2; }
   vertical-align: middle; margin-left: 6px;
 }
 
+.date-field-selector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.date-field-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: var(--card-bg);
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.date-field-btn:hover { border-color: var(--blue); color: var(--blue); }
+.date-field-btn.active {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: #fff;
+  font-weight: 600;
+}
+
 .filter-row {
   font-size: 0.82rem; color: var(--text-muted);
   margin-bottom: 10px;
